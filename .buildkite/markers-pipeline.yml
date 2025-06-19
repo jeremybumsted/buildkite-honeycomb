@@ -13,3 +13,4 @@ steps:
         soft_fail: true
   - wait: ~
     depends_on: test-buildkite-markers
+  - command:
