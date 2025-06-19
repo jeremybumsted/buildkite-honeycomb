@@ -4,7 +4,7 @@ steps:
   - group: ":golang: :test_tube: :opentelemetry: Test - with Buildevents"
     steps:
       - command:
-          - STEP_START=$$(date +%s) STEP_SPAN_ID="$${BUILDKITE_JOB_ID}" /.buildkite/scripts/go_test.sh
+          - .buildkite/scripts/go_test.sh
         key: "test-buildevents"
         parallelism: 5
         soft_fail: true
