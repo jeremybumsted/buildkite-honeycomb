@@ -1,0 +1,33 @@
+env:
+  BUILD_START: $BUILD_START
+steps:
+  - group: ":golang: :test_tube: :opentelemetry: Test - with Buildevents"
+    steps:
+      - command:
+          - STEP_START=$$(date +%s) STEP_SPAN_ID="$${BUILDKITE_JOB_ID}" /.buildkite/scripts/run_tests.sh
+        key: "test-buildevents"
+        parallelism: 5
+        plugins:
+          - test-collector#v1.11.0:
+              files: "*unit-tests.xml"
+              format: "junit"
+        soft_fail: true
+  - group: ":golang: :test_tube: :opentelemetry: Test - with Buildkite Markers"
+    steps:
+      - command:
+          - STEP_START=$$(date +%s) STEP_SPAN_ID="$${BUILDKITE_JOB_ID}" /.buildkite/scripts/run_tests.sh
+        key: "test-buildkite-markers"
+        parallelism: 5
+        plugins:
+          - test-collector#v1.11.0:
+              files: "*unit-tests.xml"
+              format: "junit"
+        soft_fail: true
+        depends_on:
+          - test-buildevents
+  - wait: ~
+    depends_on:
+      - test-buildkite-markers
+      - test-buildevents
+  - command: STEP_START=$$(date +%s) STEP_SPAN_ID="$${BUILDKITE_JOB_ID}" .buildkite/scripts/annotate_build.sh
+    label: ":broom: :opentelemetry: Cleanup and Finish Build in Honeycomb"
