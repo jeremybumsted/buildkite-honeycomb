@@ -4,24 +4,21 @@ steps:
   - group: ":golang: :test_tube: :opentelemetry: Test - with Buildevents"
     steps:
       - command:
-          - STEP_START=$$(date +%s) STEP_SPAN_ID="$${BUILDKITE_JOB_ID}" /.buildkite/scripts/run_tests.sh
+          - STEP_START=$$(date +%s) STEP_SPAN_ID="$${BUILDKITE_JOB_ID}" /.buildkite/scripts/go_test.sh
         key: "test-buildevents"
         parallelism: 5
-        plugins:
-          - test-collector#v1.11.0:
-              files: "*unit-tests.xml"
-              format: "junit"
         soft_fail: true
   - group: ":golang: :test_tube: :opentelemetry: Test - with Buildkite Markers"
     steps:
-      - command:
-          - STEP_START=$$(date +%s) STEP_SPAN_ID="$${BUILDKITE_JOB_ID}" /.buildkite/scripts/run_tests.sh
+      - command: /.buildkite/scripts/no_build_events_go_test.sh
+        plugins:
+          - tendnz/honeymarker#v1.0.5:
+              message: "${BUILDKITE_PIPELINE_SLUG}-${BUILDKITE_BUILD_NUMBER}"
+              writekey: "$$BUILDEVENT_APIKEY"
+              dataset: "buildkite-markers"
+              url: "${BUILDKITE_BUILD_URL}"
         key: "test-buildkite-markers"
         parallelism: 5
-        plugins:
-          - test-collector#v1.11.0:
-              files: "*unit-tests.xml"
-              format: "junit"
         soft_fail: true
         depends_on:
           - test-buildevents
