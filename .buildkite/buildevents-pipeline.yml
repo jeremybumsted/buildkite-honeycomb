@@ -1,0 +1,15 @@
+env:
+  BUILD_START: $BUILD_START
+steps:
+  - group: ":golang: :test_tube: :opentelemetry: Test - with Buildevents"
+    steps:
+      - command:
+          - .buildkite/scripts/go_test.sh
+        key: "test-buildevents"
+        parallelism: 5
+        soft_fail: true
+  - wait: ~
+    depends_on:
+      - test-buildevents
+  - command: STEP_START=$$(date +%s) STEP_SPAN_ID="$${BUILDKITE_JOB_ID}" .buildkite/scripts/annotate_build.sh
+    label: ":broom: :opentelemetry: Cleanup and Finish Build in Honeycomb"

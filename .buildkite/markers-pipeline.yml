@@ -1,0 +1,15 @@
+steps:
+  - group: ":golang: :test_tube: :opentelemetry: Test - with Buildkite Markers"
+    steps:
+      - command: /.buildkite/scripts/markers_go_test.sh
+        plugins:
+          - tendnz/honeymarker#v1.0.5:
+              message: "${BUILDKITE_PIPELINE_SLUG}-${BUILDKITE_BUILD_NUMBER}"
+              writekey: "$$BUILDEVENT_APIKEY"
+              dataset: "buildkite"
+              url: "${BUILDKITE_BUILD_URL}"
+        key: "test-buildkite-markers"
+        parallelism: 5
+        soft_fail: true
+  - wait: ~
+    depends_on: test-buildkite-markers
