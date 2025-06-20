@@ -6,11 +6,11 @@ steps:
           - tendnz/honeymarker#v1.0.5:
               message: "${BUILDKITE_PIPELINE_SLUG}-${BUILDKITE_BUILD_NUMBER}"
               writekey: "$$BUILDEVENT_APIKEY"
-              dataset: "buildkite"
+              dataset: "buildkite-markers"
               url: "${BUILDKITE_BUILD_URL}"
         key: "test-buildkite-markers"
         parallelism: 5
         soft_fail: true
   - wait: ~
     depends_on: test-buildkite-markers
-  - command:
+  - command: echo "Cleanup 🧹"
