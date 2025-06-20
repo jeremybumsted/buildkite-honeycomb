@@ -1,7 +1,7 @@
 
 
 # buildkite-honeycomb
-An example repository to show how you might use Honeycomb's Buildevents and Buildkite Markers in a Buildkite pipeline.
+An example repository to show how you might use Honeycomb's Buildevents and Buildkite Markers in a [Buildkite](https://buildkite.com/home/) pipeline.
 
 ## Setup
 Fork the repository, then click the button below to create a new Pipeline.
