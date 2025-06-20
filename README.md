@@ -5,6 +5,7 @@ An example repository to show how you might use Honeycomb's Buildevents and Buil
 
 ## Setup
 Fork the repository, then click the button below to create a new Pipeline.
+
 [![Add to Buildkite](https://buildkite.com/button.svg)](https://buildkite.com/new)
 
 Further setup instructions are below for each of the tools used in this repository.
@@ -51,14 +52,37 @@ export STEP_SPAN_ID="${BUILDKITE_JOB_ID}-hook-name" # recommended to use the hoo
 # run this command at the end of your hook to capture the span:
 buildevents step $BUILDKITE_BUILD_ID $STEP_SPAN_ID $STEP_START hook-name
 ```
+Then, you can run your commands. In your script you'll run something along the lines of:
+```bash
+buildevents cmd $BUILDKITE_BUILD_ID $STEP_SPAN_ID go-clean -- go clean -testcache
+```
 Once the pipeline runs, you'll see an annotation that will link you to the trace in Honeycomb, it should look something like this:
 ![Honeycomb Trace](./img/buildkite-markers.png)
 
 ### Honeymarker Buildkite Plugin
+>**⚠️Warning** As of the time of writing, the latest version of the plugin expects your API key to be passed into the plugin as a plain-text string, and is not obscured in your agent environment.
+
 The second set (`markers-pipeline.yml`) uses the [Honeymarker Buildkite Plugin](https://github.com/tendnz/honeymarker-buildkite-plugin).
 
 Configure your Pipeline steps to run:
 ```yaml
   - label: ":pipeline: Honeymarker plugin"
     command: "buildkite-agent pipeline upload .buildkite/markers-pipeline.yml"
+```
+This likely will not work as expected, and the plugin doesn't seem to reveal any errors sent in the API response, unless you pass the key as plain text into the plugin config.
+
+## Alternatives
+Honeycomb supports the collection of OpenTelemetry(OTEL) traces and metrics. The Buildkite agent also [supports configuring tracing](https://buildkite.com/docs/agent/v3/tracing#using-opentelemetry-tracing) to be sent to a tracing backend (such as Honeycomb, DataDog, etc.).
+
+To enable this, you can configure the tracing backend on your Buildkite agent for Honeycomb like this:
+
+`buildkite-agent.cfg`
+```
+tracing-backend=opentelemetry
+```
+In the environment when running the agent:
+```
+OTEL_EXPORTER_OTLP_TRACES_ENDPOINT="https://api.honeycomb.io"
+OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=<api_key>"
+OTEL_SERVICE_NAME="buildkite-agent"
 ```
